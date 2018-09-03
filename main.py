@@ -20,8 +20,11 @@ CONTENT_ID = 'content'
 ICAL_VERSION = '2.0'
 
 def get_prodid():
-    repo = git.Repo()
-    version = repo.git.describe(always=True)
+    try:
+        repo = git.Repo()
+        version = repo.git.describe(always=True)
+    except git.exc.InvalidGitRepositoryError:
+        version = os.environ['SOURCE_VERSION']
 
     author = __author__
     package = __package__
