@@ -23,8 +23,9 @@ def get_prodid():
     try:
         repo = git.Repo()
         version = repo.git.describe(always=True)
-    except git.exc.InvalidGitRepositoryError:
-        version = os.environ['SOURCE_VERSION']
+    except:
+        with open('.source_version', r) as f:
+            version = f.read().strip()
 
     author = __author__
     package = __package__
