@@ -1,6 +1,9 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i python3 -p "with python3Packages; [GitPython beautifulsoup4 requests dateparser icalendar urllib3 chardet python]"
 
+__author__ = 'Synthetica9'
+__package__ = 'schoolvakanties'
+
 from bs4 import BeautifulSoup
 import requests
 import dateparser
@@ -12,10 +15,16 @@ import git
 ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar'
 PARSER = 'html.parser'
 CONTENT_ID = 'content'
+ICAL_VERSION = '2.0'
 
 def get_prodid():
     repo = git.Repo()
-    return repo.git.describe()
+    version = repo.git.describe(always=True)
+
+    author = __author__
+    package = __package__
+    return f'-//{author}//{package}-{version}//NL'
+
 
 PRODID = get_prodid()
 # get_data_urls parses https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar
@@ -36,19 +45,18 @@ def parse_daterange(to_parse):
     year = end[-4:]
     if not ends_in_year(begin):
         begin += " " + year
-    for time in begin, end:
-        yield dateparser.parse(time, languages=['nl'])
+    for timestring in begin, end:
+        date = dateparser.parse(timestring, languages=['nl'])
+        yield date.isoformat()
 
 def ends_in_year(datestring):
     return re.fullmatch(r'^.*\d{4}$', datestring)
 
 def parse_data(url):
     calendars = dict()
-    print(url)
     soup = soupify_url(url)
     table_headers = soup.find_all('th', scope='col')
     regions = [header.string for header in table_headers]
-    print(regions)
     rows = soup.tbody.find_all('tr')
     for row in rows:
         name = row.th.p.string
@@ -61,20 +69,26 @@ def parse_data(url):
             event['dtstart'] = begin
             event['dtend'] = end
 
-            print(region, name, begin, end, sep=" - ")
             calendars.setdefault(region, []).append(event)
 
     return calendars
 
-def generate_calendar(entry_url=ENTRY_URL):
+def generate_calendars(entry_url=ENTRY_URL):
     calendars = dict()
     urls = data_urls(entry_url)
     for url in urls:
         for region, events in parse_data(url).items():
+            calendar = calendars.setdefault(region.replace(' ', '') + '.ical', Calendar())
+            calendar['prodid'] = PRODID
+            calendar['version'] = ICAL_VERSION
             for event in events:
-                calendar = calendars.setdefault(region, Calendar())
-                calendar['prodid'] = 'Synthetica9'
+                calendar.add_component(event)
     return calendars
 
+def main():
+    for region, calendar in generate_calendars().items():
+        with open(region, 'wb') as f:
+            f.write(calendar.to_ical())
+
 if __name__ == '__main__':
-    generate_calendar()
+    main()
