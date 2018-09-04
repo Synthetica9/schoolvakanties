@@ -97,9 +97,11 @@ def generate_calendars(entry_url=ENTRY_URL):
     for url in urls:
         for region, events in parse_data(url).items():
             calendar = calendars.setdefault(region.replace(' ', ''), Calendar())
+            name =  f'Schoolvakanties {region}'
             calendar['prodid'] = PRODID
             calendar['version'] = ICAL_VERSION
-            calendar['summary'] = f'Schoolvakanties {region}'
+            calendar['name'] = name
+            calendar['x-wr-calname'] = name
             calendar['x-wr-timezone'] = TIMEZONE
             for event in events:
                 calendar.add_component(event)
