@@ -21,7 +21,7 @@ ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-
 PARSER = 'html.parser'
 CONTENT_ID = 'content'
 ICAL_VERSION = '2.0'
-DATE_FORMAT = 'DATE:%Y%m%d'
+DATE_FORMAT = 'VALUE=DATE:%Y%m%d'
 TIMEZONE = 'Europe/Amsterdam'
 
 def get_prodid():
@@ -58,7 +58,7 @@ def parse_daterange(to_parse):
         begin += " " + year
     for timestring in begin, end:
         date = dateparser.parse(timestring, languages=['nl'])
-        yield date.date()
+        yield date.strftime(DATE_FORMAT)
 
 def ends_in_year(datestring):
     return re.fullmatch(r'^.*\d{4}$', datestring)
