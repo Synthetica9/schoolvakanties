@@ -14,6 +14,8 @@ import git
 import json
 import os
 from flask import Flask, Response
+from flask.ext.api import status
+
 from uuid import uuid4
 
 ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar'
@@ -101,7 +103,12 @@ calendars = generate_calendars()
 
 @app.route('/<region>')
 def region_ical(region):
-    resp = Response(calendars[region].to_ical())
+    try:
+        content = calendars[region].to_ical()
+    except KeyError:
+        return "Region not found", status.HTTP_404_NOT_FOUND
+
+    resp = Response(content)
     resp.headers['Content-type'] = 'text/calendar; charset=utf-8'
     resp.headers['']
     return resp
