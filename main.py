@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i python3 -p "with python3Packages; [GitPython beautifulsoup4 requests dateparser icalendar urllib3 chardet python]"
+#! nix-shell -i python3 -p "with python3Packages; [GitPython flask beautifulsoup4 requests dateparser icalendar urllib3 chardet python]"
 
 __author__ = 'Synthetica9'
 __package__ = 'schoolvakanties'
@@ -13,6 +13,7 @@ from icalendar import Event, Calendar
 import git
 import json
 import os
+from flask import Flask
 
 ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar'
 PARSER = 'html.parser'
@@ -24,7 +25,7 @@ def get_prodid():
         repo = git.Repo()
         version = repo.git.describe(always=True)
     except:
-        with open('.source_version', r) as f:
+        with open('.source_version', 'r') as f:
             version = f.read().strip()
 
     author = __author__
@@ -91,19 +92,17 @@ def generate_calendars(entry_url=ENTRY_URL):
                 calendar.add_component(event)
     return calendars
 
-def static_root():
-    with open("static.json") as f:
-        j = json.load(f)
-        return j['root']
-
 def main():
-    root = static_root()
-    os.makedirs(root, exist_ok=True)
-    for region, calendar in generate_calendars().items():
-        path = os.path.join(root, region + '.ical')
-        with open(path, 'wb') as f:
-            f.write(calendar.to_ical())
+    calendars = generate_calendars()
+    app = Flask(__name__)
+
+    @app.route('/<region>')
+    def region_ical(region):
+        return calendars[region].to_ical()
+
+    port = int(os.environ.get('PORT', 33507))
+    app.run(port=port)
+
 
 if __name__ == '__main__':
-    print(static_root())
     main()
