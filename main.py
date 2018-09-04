@@ -109,7 +109,6 @@ def region_ical(region):
 
     resp = Response(content)
     resp.headers['Content-type'] = 'text/calendar; charset=utf-8'
-    resp.headers['']
     return resp
 
 port = int(os.environ.get('PORT', 33507))
