@@ -93,13 +93,13 @@ def generate_calendars(entry_url=ENTRY_URL):
     return calendars
 
 
-if __name__ == '__main__':
-    calendars = generate_calendars()
-    app = Flask(__name__)
+app = Flask(__name__)
+calendars = generate_calendars()
 
-    @app.route('/<region>')
-    def region_ical(region):
-        return calendars[region].to_ical()
+@app.route('/<region>')
+def region_ical(region):
+    return calendars[region].to_ical()
 
-    port = int(os.environ.get('PORT', 33507))
+port = int(os.environ.get('PORT', 33507))
+if __name__ == "__main__":
     app.run(port=port)
