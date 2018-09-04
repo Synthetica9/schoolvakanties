@@ -92,6 +92,7 @@ def generate_calendars(entry_url=ENTRY_URL):
             calendar = calendars.setdefault(region.replace(' ', ''), Calendar())
             calendar['prodid'] = PRODID
             calendar['version'] = ICAL_VERSION
+            calendar['summary'] = f'Schoolvakanties {region}'
             for event in events:
                 calendar.add_component(event)
     return calendars
