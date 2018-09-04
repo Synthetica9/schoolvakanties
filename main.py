@@ -21,7 +21,7 @@ ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-
 PARSER = 'html.parser'
 CONTENT_ID = 'content'
 ICAL_VERSION = '2.0'
-DATE_FORMAT = '%Y%d%mT%H%M%S'
+DATE_FORMAT = '%Y%m%dT%H%M%S'
 
 def get_prodid():
     try:
