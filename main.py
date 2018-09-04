@@ -58,7 +58,7 @@ def parse_daterange(to_parse):
         begin += " " + year
     for timestring in begin, end:
         date = dateparser.parse(timestring, languages=['nl'])
-        yield date.strftime(DATE_FORMAT)
+        yield date.date()
 
 def ends_in_year(datestring):
     return re.fullmatch(r'^.*\d{4}$', datestring)
@@ -78,8 +78,8 @@ def parse_data(url):
             event = Event()
             event['summary'] = name
             event['location'] = region
-            event['dtstart;value'] = begin
-            event['dtend;value'] = end
+            event['dtstart'] = begin
+            event['dtend'] = end
             event['uid'] = uuid4()
             event['description'] = description
 
