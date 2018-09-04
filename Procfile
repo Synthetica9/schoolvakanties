@@ -1,1 +1,1 @@
-web: gunicorn -k flask_sockets.worker main:app
+web: gunicorn -b 0.0.0.0:$PORT main:app

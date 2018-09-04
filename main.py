@@ -92,7 +92,8 @@ def generate_calendars(entry_url=ENTRY_URL):
                 calendar.add_component(event)
     return calendars
 
-def main():
+
+if __name__ == '__main__':
     calendars = generate_calendars()
     app = Flask(__name__)
 
@@ -102,7 +103,3 @@ def main():
 
     port = int(os.environ.get('PORT', 33507))
     app.run(port=port)
-
-
-if __name__ == '__main__':
-    main()
