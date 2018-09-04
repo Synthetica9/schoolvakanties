@@ -22,6 +22,7 @@ PARSER = 'html.parser'
 CONTENT_ID = 'content'
 ICAL_VERSION = '2.0'
 DATE_FORMAT = '%Y%m%dT%H%M%S'
+TIMEZONE = 'Europe/Amsterdam'
 
 def get_prodid():
     try:
@@ -95,6 +96,7 @@ def generate_calendars(entry_url=ENTRY_URL):
             calendar['prodid'] = PRODID
             calendar['version'] = ICAL_VERSION
             calendar['summary'] = f'Schoolvakanties {region}'
+            calendar['x-wr-timezone'] = TIMEZONE
             for event in events:
                 calendar.add_component(event)
     return calendars
