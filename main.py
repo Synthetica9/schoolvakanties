@@ -21,7 +21,7 @@ ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-
 PARSER = 'html.parser'
 CONTENT_ID = 'content'
 ICAL_VERSION = '2.0'
-DATE_FORMAT = '%Y%m%dT%H%M%S'
+DATE_FORMAT = 'DATE:%Y%m%d'
 TIMEZONE = 'Europe/Amsterdam'
 
 def get_prodid():
@@ -78,8 +78,8 @@ def parse_data(url):
             event = Event()
             event['summary'] = name
             event['location'] = region
-            event['dtstart'] = begin
-            event['dtend'] = end
+            event['dtstart;value'] = begin
+            event['dtend;value'] = end
             event['uid'] = uuid4()
             event['description'] = description
 
