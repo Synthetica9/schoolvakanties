@@ -13,7 +13,8 @@ from icalendar import Event, Calendar
 import git
 import json
 import os
-from flask import Flask
+from flask import Flask, Response
+from uuid import uuid4
 
 ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar'
 PARSER = 'html.parser'
@@ -76,6 +77,7 @@ def parse_data(url):
             event['location'] = region
             event['dtstart'] = begin
             event['dtend'] = end
+            event['uid'] = uuid4()
 
             calendars.setdefault(region, []).append(event)
 
@@ -86,7 +88,7 @@ def generate_calendars(entry_url=ENTRY_URL):
     urls = data_urls(entry_url)
     for url in urls:
         for region, events in parse_data(url).items():
-            calendar = calendars.setdefault(region.replace(' ', ''), Calendar())
+            calendar = calendars.setdefault(region.replace(' ', '') + '.ical', Calendar())
             calendar['prodid'] = PRODID
             calendar['version'] = ICAL_VERSION
             for event in events:
@@ -99,7 +101,10 @@ calendars = generate_calendars()
 
 @app.route('/<region>')
 def region_ical(region):
-    return calendars[region].to_ical()
+    resp = Response(calendars[region].to_ical())
+    resp.headers['Content-type'] = 'text/calendar; charset=utf-8'
+    resp.headers['']
+    return resp
 
 port = int(os.environ.get('PORT', 33507))
 if __name__ == "__main__":
