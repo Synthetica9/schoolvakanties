@@ -7,6 +7,7 @@ __package__ = 'schoolvakanties'
 from bs4 import BeautifulSoup
 import requests
 import dateparser
+from datetime import timedelta
 from urllib.parse import urljoin
 import re
 from icalendar import Event, Calendar
@@ -58,6 +59,9 @@ def parse_daterange(to_parse):
         begin += " " + year
     for timestring in begin, end:
         date = dateparser.parse(timestring, languages=['nl'])
+        if timestring == end:
+            # Ends are exclusive in ical
+            date += timedelta(days=1)
         yield date.strftime(DATE_FORMAT)
 
 def ends_in_year(datestring):
