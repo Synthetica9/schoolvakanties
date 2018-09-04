@@ -14,7 +14,6 @@ import git
 import json
 import os
 from flask import Flask, Response
-from flask.ext.api import status
 
 from uuid import uuid4
 
@@ -106,7 +105,7 @@ def region_ical(region):
     try:
         content = calendars[region].to_ical()
     except KeyError:
-        return "Region not found", status.HTTP_404_NOT_FOUND
+        return "Region not found", 404
 
     resp = Response(content)
     resp.headers['Content-type'] = 'text/calendar; charset=utf-8'
