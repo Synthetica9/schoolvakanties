@@ -1,2 +1,1 @@
-worker: python main.py
-web: bin/boot
+web: gunicorn main:app
