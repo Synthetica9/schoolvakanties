@@ -64,6 +64,7 @@ def ends_in_year(datestring):
 
 def parse_data(url):
     calendars = dict()
+    description = f'Source: {url}'
     soup = soupify_url(url)
     table_headers = soup.find_all('th', scope='col')
     regions = [header.string for header in table_headers]
@@ -79,6 +80,7 @@ def parse_data(url):
             event['dtstart'] = begin
             event['dtend'] = end
             event['uid'] = uuid4()
+            event['description'] = description
 
             calendars.setdefault(region, []).append(event)
 
