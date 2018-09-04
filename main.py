@@ -90,7 +90,7 @@ def generate_calendars(entry_url=ENTRY_URL):
     urls = data_urls(entry_url)
     for url in urls:
         for region, events in parse_data(url).items():
-            calendar = calendars.setdefault(region.replace(' ', '') + '.ical', Calendar())
+            calendar = calendars.setdefault(region.replace(' ', ''), Calendar())
             calendar['prodid'] = PRODID
             calendar['version'] = ICAL_VERSION
             for event in events:
@@ -101,7 +101,7 @@ def generate_calendars(entry_url=ENTRY_URL):
 app = Flask(__name__)
 calendars = generate_calendars()
 
-@app.route('/<region>')
+@app.route('/<region>.ical')
 def region_ical(region):
     try:
         content = calendars[region].to_ical()
