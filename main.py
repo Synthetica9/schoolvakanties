@@ -11,7 +11,7 @@ from urllib.parse import urljoin
 from flask import Flask, Response
 
 import dateparser
-from datetime import timedelta
+from datetime import *
 from time import time
 
 from icalendar import Event, Calendar
@@ -28,20 +28,21 @@ PARSER = 'html.parser'
 CONTENT_ID = 'content'
 ICAL_VERSION = '2.0'
 DATE_FORMAT = '%Y%m%d'
+DATETIME_UTC_FORMAT = '%Y%m%dT%H%SZ'
 TIMEZONE = 'Europe/Amsterdam'
+UID_POSTFIX = "@schoolvakanties.herokuapp"
 
+try:
+    repo = git.Repo()
+    SOURCE_VERSION = repo.git.describe(always=True)
+except:
+    with open('.source_version', 'r') as f:
+        SOURCE_VERSION = f.read().strip()
 
 def get_prodid():
-    try:
-        repo = git.Repo()
-        version = repo.git.describe(always=True)
-    except:
-        with open('.source_version', 'r') as f:
-            version = f.read().strip()
-
     author = __author__
     package = __package__
-    return f'-//{author}//{package}-{version}//NL'
+    return f'-//{author}//{package}-{SOURCE_VERSION}//NL'
 
 
 PRODID = get_prodid()
@@ -112,6 +113,14 @@ def ends_in_year(datestring):
     return re.fullmatch(r'^.*\d{4}$', datestring)
 
 
+def gen_UID(name, region, begin, end):
+    return "-".join((name, region.replace(' ', ''), begin, end)) + UID_POSTFIX
+
+
+def utc_now():
+    return datetime.utcnow().strftime(DATETIME_UTC_FORMAT)
+
+
 def parse_data(url):
     calendars = dict()
     description = f'Source: {url}'
@@ -129,8 +138,9 @@ def parse_data(url):
             event['location'] = region
             event['dtstart;value=date'] = begin
             event['dtend;value=date'] = end
-            event['uid'] = uuid4()
+            event['uid'] = gen_UID(name, region, begin, end)
             event['description'] = description
+            event['last-modified'] = utc_now()
 
             calendars.setdefault(region, []).append(event)
 
