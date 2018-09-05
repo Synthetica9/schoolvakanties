@@ -98,6 +98,7 @@ def data_urls(entry_url=ENTRY_URL):
 
 def parse_daterange(to_parse):
     begin, end = to_parse.split(' t/m ')
+    assert(ends_in_year(end))
     year = end[-4:]
     if not ends_in_year(begin):
         begin += ' ' + year
