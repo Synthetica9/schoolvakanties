@@ -202,8 +202,7 @@ def index():
         </a>''')
     return sb.getvalue()
 
-
+generate_calendars()  # Warm up the cache.
 if __name__ == '__main__':
-    generate_calendars()  # Warm up the cache.
     port = int(os.environ.get('PORT', 33507))
     app.run(port=port)
