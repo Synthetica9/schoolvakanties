@@ -6,16 +6,20 @@ __package__ = 'schoolvakanties'
 
 from bs4 import BeautifulSoup
 import requests
-import dateparser
-from datetime import timedelta
 from urllib.parse import urljoin
-import re
-from icalendar import Event, Calendar
-import git
-import json
-import os
+
 from flask import Flask, Response
 
+import dateparser
+from datetime import timedelta
+from time import time
+
+from icalendar import Event, Calendar
+
+import re
+import git
+import os
+from functools import wraps
 from uuid import uuid4
 
 ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar'
@@ -41,7 +45,39 @@ def get_prodid():
 PRODID = get_prodid()
 # get_data_urls parses https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar
 
+# http://book.pythontips.com/en/latest/function_caching.html
+def cache(duration=None, **kwargs):
+    if duration is not None:
+        assert not kwargs
+
+    else:
+        duration = timedelta(**kwargs)
+
+    if isinstance(duration, timedelta):
+        duration = duration.total_seconds()
+
+    def wrapper(function):
+        memo = {}
+        @wraps(function)
+        def wrapped(*args):
+            try:
+                memo_time, memo_rv = memo[args]
+            except KeyError:
+                pass
+            else:
+                if memo_time + duration > time():
+                    print("Using cached value")
+                    return memo_rv
+
+            rv = function(*args)
+            memo[args] = (time(), rv)
+            return rv
+        return wrapped
+    return wrapper
+
+
 def soupify_url(url, parser=PARSER):
+    print("Grabbing url:", url)
     r = requests.get(url)
     return BeautifulSoup(r.text, parser)
 
@@ -91,13 +127,14 @@ def parse_data(url):
 
     return calendars
 
+@cache(days=7)
 def generate_calendars(entry_url=ENTRY_URL):
     calendars = dict()
     urls = data_urls(entry_url)
     for url in urls:
         for region, events in parse_data(url).items():
             calendar = calendars.setdefault(region.replace(' ', ''), Calendar())
-            name =  f'Schoolvakanties {region}'
+            name = f'Schoolvakanties {region}'
             calendar['prodid'] = PRODID
             calendar['version'] = ICAL_VERSION
             calendar['name'] = name
@@ -109,10 +146,10 @@ def generate_calendars(entry_url=ENTRY_URL):
 
 
 app = Flask(__name__)
-calendars = generate_calendars()
 
 @app.route('/<region>.ical')
 def region_ical(region):
+    calendars = generate_calendars()
     try:
         content = calendars[region].to_ical()
     except KeyError:
