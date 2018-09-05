@@ -167,7 +167,8 @@ def index():
 
     sb.write('<h1>Available Calendars</h1>')
     for calendar in calendars:
-        sb.write(f'<li><a href=/{calendar}.ical>{calendar}</a></li>')
+        sb.write(f'<li><a href="/{calendar}.ical">{calendar}</a></li>')
+    sb.write('<a href="https://github.com/Synthetica9/schoolvakanties">Source code</a>')
     return sb.getvalue()
 
 
