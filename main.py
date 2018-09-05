@@ -134,13 +134,17 @@ def parse_data(url):
             begin, end = parse_daterange(date.string)
 
             event = Event()
-            event['summary'] = name
-            event['location'] = region
-            event['dtstart;value=date'] = begin
-            event['dtend;value=date'] = end
-            event['uid'] = gen_UID(name, region, begin, end)
-            event['description'] = description
-            event['last-modified'] = utc_now()
+            d = {
+                'summary': name,
+                'location': region,
+                'dtstart;value=date': begin,
+                'dtend;value=date': end,
+                'uid': gen_UID(name, region, begin, end),
+                'description': description,
+                'last-modified': utc_now(),
+            }
+            for k, v in d.items():
+                event[k] = v
 
             calendars.setdefault(region, []).append(event)
 
