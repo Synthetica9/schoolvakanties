@@ -171,7 +171,6 @@ def index():
     sb.write('<a href="https://github.com/Synthetica9/schoolvakanties">Source code</a>')
     return sb.getvalue()
 
-
-port = int(os.environ.get('PORT', 33507))
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 33507))
     app.run(port=port)
