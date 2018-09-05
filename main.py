@@ -30,6 +30,7 @@ ICAL_VERSION = '2.0'
 DATE_FORMAT = '%Y%m%d'
 TIMEZONE = 'Europe/Amsterdam'
 
+
 def get_prodid():
     try:
         repo = git.Repo()
@@ -47,6 +48,8 @@ PRODID = get_prodid()
 # get_data_urls parses https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar
 
 # http://book.pythontips.com/en/latest/function_caching.html
+
+
 def cache(duration=None, **kwargs):
     if duration is not None:
         assert not kwargs
@@ -59,6 +62,7 @@ def cache(duration=None, **kwargs):
 
     def wrapper(function):
         memo = {}
+
         @wraps(function)
         def wrapped(*args):
             try:
@@ -82,12 +86,14 @@ def soupify_url(url, parser=PARSER):
     r = requests.get(url)
     return BeautifulSoup(r.text, parser)
 
+
 def data_urls(entry_url=ENTRY_URL):
     soup = soupify_url(entry_url)
     for a in soup.find('div', id=CONTENT_ID).find_all('a'):
         relative_url = a.get('href')
         absolute_url = urljoin(entry_url, relative_url)
         yield absolute_url
+
 
 def parse_daterange(to_parse):
     begin, end = to_parse.split(' t/m ')
@@ -101,8 +107,10 @@ def parse_daterange(to_parse):
             date += timedelta(days=1)
         yield date.strftime(DATE_FORMAT)
 
+
 def ends_in_year(datestring):
     return re.fullmatch(r'^.*\d{4}$', datestring)
+
 
 def parse_data(url):
     calendars = dict()
@@ -128,13 +136,15 @@ def parse_data(url):
 
     return calendars
 
+
 @cache(days=7)
 def generate_calendars(entry_url=ENTRY_URL):
     calendars = dict()
     urls = data_urls(entry_url)
     for url in urls:
         for region, events in parse_data(url).items():
-            calendar = calendars.setdefault(region.replace(' ', ''), Calendar())
+            calendar = calendars.setdefault(
+                region.replace(' ', ''), Calendar())
             name = f'Schoolvakanties {region}'
             calendar['prodid'] = PRODID
             calendar['version'] = ICAL_VERSION
@@ -148,6 +158,7 @@ def generate_calendars(entry_url=ENTRY_URL):
 
 app = Flask(__name__)
 
+
 @app.route('/<region>.ical')
 def region_ical(region):
     calendars = generate_calendars()
@@ -160,6 +171,7 @@ def region_ical(region):
     resp.headers['Content-type'] = 'text/calendar; charset=utf-8'
     return resp
 
+
 @app.route('/')
 def index():
     sb = StringIO()
@@ -168,8 +180,13 @@ def index():
     sb.write('<h1>Available Calendars</h1>')
     for calendar in calendars:
         sb.write(f'<li><a href="/{calendar}.ical">{calendar}</a></li>')
-    sb.write('<br /><a href="https://github.com/Synthetica9/schoolvakanties">Source code</a>')
+    sb.write('''
+        <br />
+        <a href="https://github.com/Synthetica9/schoolvakanties">
+            Source code
+        </a>''')
     return sb.getvalue()
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 33507))
