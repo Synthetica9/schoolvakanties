@@ -67,7 +67,7 @@ def cache(duration=None, **kwargs):
                 pass
             else:
                 if memo_time + duration > time():
-                    print("Using cached value")
+                    print('Using cached value')
                     return memo_rv
 
             rv = function(*args)
@@ -78,7 +78,7 @@ def cache(duration=None, **kwargs):
 
 
 def soupify_url(url, parser=PARSER):
-    print("Grabbing url:", url)
+    print('Grabbing url:', url)
     r = requests.get(url)
     return BeautifulSoup(r.text, parser)
 
@@ -93,7 +93,7 @@ def parse_daterange(to_parse):
     begin, end = to_parse.split(' t/m ')
     year = end[-4:]
     if not ends_in_year(begin):
-        begin += " " + year
+        begin += ' ' + year
     for timestring in begin, end:
         date = dateparser.parse(timestring, languages=['nl'])
         if timestring == end:
@@ -154,7 +154,7 @@ def region_ical(region):
     try:
         content = calendars[region].to_ical()
     except KeyError:
-        return "Region not found", 404
+        return 'Region not found', 404
 
     resp = Response(content)
     resp.headers['Content-type'] = 'text/calendar; charset=utf-8'
@@ -165,11 +165,12 @@ def index():
     sb = StringIO()
     calendars = generate_calendars()
 
-    sb.write("<h1>Available Calendars</h1>")
+    sb.write('<h1>Available Calendars</h1>')
     for calendar in calendars:
         sb.write(f'<li><a href=/{calendar}.ical>{calendar}</a></li>')
     return sb.getvalue()
 
+
 port = int(os.environ.get('PORT', 33507))
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(port=port)
