@@ -21,6 +21,7 @@ import git
 import os
 from functools import wraps
 from uuid import uuid4
+from io import StringIO
 
 ENTRY_URL = 'https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar'
 PARSER = 'html.parser'
@@ -158,6 +159,16 @@ def region_ical(region):
     resp = Response(content)
     resp.headers['Content-type'] = 'text/calendar; charset=utf-8'
     return resp
+
+@app.route('/')
+def index():
+    sb = StringIO()
+    calendars = generate_calendars()
+
+    sb.write("<h1>Available Calendars</h1>")
+    for calendar in calendars:
+        sb.write(f'<li><a href=/{calendar}.ical>{calendar}</a></li>')
+    return sb.getvalue()
 
 port = int(os.environ.get('PORT', 33507))
 if __name__ == "__main__":
