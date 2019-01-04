@@ -37,7 +37,7 @@ try:
     SOURCE_VERSION = repo.git.describe(always=True)
 except:
     with open('.source_version', 'r') as f:
-        SOURCE_VERSION = f.read().strip()
+        SOURCE_VERSION = f.read().strip()[:7]
 
 def get_prodid():
     author = __author__
