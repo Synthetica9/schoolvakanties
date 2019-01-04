@@ -99,9 +99,11 @@ def data_urls(entry_url=ENTRY_URL):
 def parse_daterange(to_parse):
     begin, end = [s.split() for s in to_parse.split(' t/m ')]
 
-    while len(begin) != len(end):
+    assert len(end) == 3
+    while len(begin) < len(end):
         # Append the first missing item
         begin.append(end[len(begin)])
+    assert len(begin) == len(end)
 
     for timestring in begin, end:
         joined = ' '.join(timestring)
