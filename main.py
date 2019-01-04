@@ -195,11 +195,14 @@ def index():
     sb.write('<h1>Available Calendars</h1>')
     for calendar in calendars:
         sb.write(f'<li><a href="/{calendar}.ical">{calendar}</a></li>')
-    sb.write('''
+    sb.write(f'''
         <br />
         <a href="https://github.com/Synthetica9/schoolvakanties">
             Source code
-        </a>''')
+        </a>
+        <br />
+        <small> Version: {SOURCE_VERSION} </small>
+    ''')
     return sb.getvalue()
 
 generate_calendars()  # Warm up the cache.
