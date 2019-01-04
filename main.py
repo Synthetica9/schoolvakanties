@@ -97,21 +97,19 @@ def data_urls(entry_url=ENTRY_URL):
 
 
 def parse_daterange(to_parse):
-    begin, end = to_parse.split(' t/m ')
-    assert(ends_in_year(end))
-    year = end[-4:]
-    if not ends_in_year(begin):
-        begin += ' ' + year
+    begin, end = [s.split() for s in to_parse.split(' t/m ')]
+
+    while len(begin) != len(end):
+        # Append the first missing item
+        begin.append(end[len(begin)])
+
     for timestring in begin, end:
-        date = dateparser.parse(timestring, languages=['nl'])
+        joined = ' '.join(timestring)
+        date = dateparser.parse(joined, languages=['nl'])
         if timestring == end:
             # Ends are exclusive in ical
             date += timedelta(days=1)
         yield date.strftime(DATE_FORMAT)
-
-
-def ends_in_year(datestring):
-    return re.fullmatch(r'^.*\d{4}$', datestring)
 
 
 def gen_UID(name, region, begin, end):
