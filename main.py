@@ -46,7 +46,6 @@ def get_prodid():
 
 
 PRODID = get_prodid()
-# get_data_urls parses https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar
 
 # http://book.pythontips.com/en/latest/function_caching.html
 
@@ -87,7 +86,8 @@ def soupify_url(url, parser=PARSER):
     r = requests.get(url)
     return BeautifulSoup(r.text, parser)
 
-
+# data_urls parses https://www.rijksoverheid.nl/onderwerpen/schoolvakanties/overzicht-schoolvakanties-per-schooljaar
+# (Or equivalent, given appropriate `entry_url`) and returns it as an iterator.
 def data_urls(entry_url=ENTRY_URL):
     soup = soupify_url(entry_url)
     for a in soup.find('div', id=CONTENT_ID).find_all('a'):
