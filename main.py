@@ -91,7 +91,7 @@ def soupify_url(url, parser=PARSER):
 # (Or equivalent, given appropriate `entry_url`) and returns it as an iterator.
 def data_urls(entry_url=ENTRY_URL):
     soup = soupify_url(entry_url)
-    for a in soup.find('div', id=CONTENT_ID).find_all('a'):
+    for a in soup.find('div', class_=CONTENT_ID).find_all('a'):
         relative_url = a.get('href')
         absolute_url = urljoin(entry_url, relative_url)
         yield absolute_url
