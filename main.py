@@ -39,6 +39,7 @@ except:
     with open('.source_version', 'r') as f:
         SOURCE_VERSION = f.read().strip()[:7]
 
+
 def get_prodid():
     author = __author__
     package = __package__
@@ -204,6 +205,7 @@ def index():
         <small> Version: {SOURCE_VERSION} </small>
     ''')
     return sb.getvalue()
+
 
 generate_calendars()  # Warm up the cache.
 if __name__ == '__main__':
